@@ -34,20 +34,26 @@ pipeline {
         }
         stage('Create Infra PR (bump tag)') {
             steps {
-                withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
-                    sh """
-                      rm -rf infra
-                      git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
-                      cd infra/apps/${K8S_ENV}/user-service
-                      sed -i 's/tag: .*/tag: ${APP_VERSION}/' values.yaml
-                      git checkout -b bump-user-${APP_VERSION}
-                      git add values.yaml
-                      git commit -m "user-service: bump to ${APP_VERSION}"
-                      git push -u origin bump-user-${APP_VERSION}
-                    """
+                withCredentials([string(credentialsId: 'github-token-id', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        rm -rf infra
+                        git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
+                        cd infra/apps/dev/user-service
+                        sed -i s/tag:.*/tag:12/ values.yaml
+                        git checkout -b bump-user-12
+        
+                        # Set Git user identity
+                        git config user.name "eya12378"
+                        git config user.email "eya.touili@eniso.u-sousse.tn"
+        
+                        git add values.yaml
+                        git commit -m "user-service: bump to 12"
+                        git push origin bump-user-12
+                    '''
                 }
             }
         }
+
     } // end of stages
 
     post {
