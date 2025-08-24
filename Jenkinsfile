@@ -40,22 +40,22 @@ environment {
         """
       }
     }
-    stage('Create Infra PR (bump tag)') {
-      steps {
-        sshagent (credentials: [GIT_SSH_CREDS_ID]) {
-          sh """
-            rm -rf infra && git clone $INFRA_REPO_SSH
-            cd infra/apps/${K8S_ENV}/user-service
-            sed -i 's/tag: .*/tag: ${APP_VERSION}/' values.yaml
-            git checkout -b bump-user-${APP_VERSION}
-            git add values.yaml
-            git commit -m "user-service: bump to ${APP_VERSION}"
-            git push -u origin bump-user-${APP_VERSION}
-          """
+      stage('Create Infra PR (bump tag)') {
+        steps {
+          sshagent(['your-ssh-credential-id']) {
+            sh """
+              rm -rf infra && git clone $INFRA_REPO_SSH
+              cd infra/apps/${K8S_ENV}/user-service
+              sed -i 's/tag: .*/tag: ${APP_VERSION}/' values.yaml
+              git checkout -b bump-user-${APP_VERSION}
+              git add values.yaml
+              git commit -m "user-service: bump to ${APP_VERSION}"
+              git push -u origin bump-user-${APP_VERSION}
+            """
+          }
         }
       }
-    }
-  }
+
   post {
     success {
       sh """curl -X POST -H 'Content-type: application/json' \
