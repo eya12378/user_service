@@ -33,21 +33,22 @@ pipeline {
             }
         }
         stage('Create Infra PR (bump tag)') {
-          steps {
-            withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
-              sh """
-                rm -rf infra
-                git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
-                cd infra/apps/${K8S_ENV}/user-service
-                sed -i 's/tag: .*/tag: ${APP_VERSION}/' values.yaml
-                git checkout -b bump-user-${APP_VERSION}
-                git add values.yaml
-                git commit -m "user-service: bump to ${APP_VERSION}"
-                git push -u origin bump-user-${APP_VERSION}
-              """
+            steps {
+                withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+                    sh """
+                      rm -rf infra
+                      git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
+                      cd infra/apps/${K8S_ENV}/user-service
+                      sed -i 's/tag: .*/tag: ${APP_VERSION}/' values.yaml
+                      git checkout -b bump-user-${APP_VERSION}
+                      git add values.yaml
+                      git commit -m "user-service: bump to ${APP_VERSION}"
+                      git push -u origin bump-user-${APP_VERSION}
+                    """
+                }
             }
-          }
         }
+    } // end of stages
 
     post {
         success {
@@ -61,4 +62,4 @@ pipeline {
               $SLACK_WEBHOOK"""
         }
     }
-}
+} // end of pipeline
