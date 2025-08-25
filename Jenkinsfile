@@ -98,17 +98,21 @@ pipeline {
         }
     }
 
-        post {
-            success {
-                sh """curl -X POST -H 'Content-type: application/json' \
-                  --data '{"text":"✅ Deployed *\${APP_VERSION}* to *\${K8S_ENV}* (ArgoCD: https://$(curl -s ifconfig.me):8083 , Grafana/Prometheus via docker-compose)"}' \
-                  $SLACK_WEBHOOK"""
-            }
-            failure {
-                sh """curl -X POST -H 'Content-type: application/json' \
-                  --data '{"text":"❌ Build failed for *\${APP_VERSION}*"}' \
-                  $SLACK_WEBHOOK"""
-            }
-        }
+   post {
+    success {
+        sh '''
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"✅ Deployed *${APP_VERSION}* to *${K8S_ENV}* (ArgoCD: https://$(curl -s ifconfig.me):8083 , Grafana/Prometheus via docker-compose)\"}" \
+          ${SLACK_WEBHOOK}
+        '''
+    }
+    failure {
+        sh '''
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"❌ Build failed for *${APP_VERSION}*\"}" \
+          ${SLACK_WEBHOOK}
+        '''
+    }
+}
 
 }
