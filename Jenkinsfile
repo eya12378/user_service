@@ -83,8 +83,12 @@ stage('Start Monitoring Stack') {
               docker-compose up -d --build
             '''
         }
+        // Print monitoring URLs
+        echo "Prometheus URL: http://161.35.99.206:9090/targets"
+        echo "Grafana URL: http://161.35.99.206:3000"
     }
 }
+
 
 
         stage('Expose ArgoCD') {
