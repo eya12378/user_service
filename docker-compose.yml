@@ -3,10 +3,12 @@ version: "3.9"
 services:
   user-service:
     build: .
+    container_name: user_service
     ports:
       - "5000:5000"
     networks:
       - monitoring
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:latest
@@ -17,6 +19,9 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - monitoring
+    depends_on:
+      - user-service
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
@@ -28,6 +33,9 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
 networks:
   monitoring:
