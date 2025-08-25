@@ -36,30 +36,42 @@ stage('Create Infra PR (bump tag)') {
     steps {
         withCredentials([string(credentialsId: 'github-token-id', variable: 'GITHUB_TOKEN')]) {
             sh '''
-                rm -rf infra
-                git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
-                cd infra/apps/dev/user-service
-                sed -i s/tag:.*/tag:12/ values.yaml
+                set -e
 
-                # Check if branch exists remotely
-                if git ls-remote --heads origin bump-user-12 | grep -q bump-user-12; then
-                    git checkout bump-user-12
-                    git pull --rebase origin bump-user-12
+                # Variables
+                BRANCH_NAME="bump-user-${APP_VERSION}"
+                REPO_DIR="infra"
+                APP_PATH="apps/dev/user-service"
+
+                # Clone the infra repo
+                rm -rf $REPO_DIR
+                git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git $REPO_DIR
+                cd $REPO_DIR
+
+                # Check if branch exists
+                if git ls-remote --heads origin $BRANCH_NAME | grep $BRANCH_NAME; then
+                    git checkout $BRANCH_NAME
+                    git reset --hard origin/$BRANCH_NAME
                 else
-                    git checkout -b bump-user-12
+                    git checkout -b $BRANCH_NAME
                 fi
 
-                # Set Git user identity
+                # Update tag in values.yaml
+                sed -i "s/tag:.*/tag:${APP_VERSION}/" $APP_PATH/values.yaml
+
+                # Set Git user
                 git config user.name "eya12378"
                 git config user.email "eya.touili@eniso.u-sousse.tn"
 
-                git add values.yaml
-                git commit -m "user-service: bump to 12" || echo "No changes to commit"
-                git push origin bump-user-12
+                # Commit & push changes
+                git add $APP_PATH/values.yaml
+                git commit -m "user-service: bump to ${APP_VERSION}" || echo "No changes to commit"
+                git push origin $BRANCH_NAME
             '''
         }
     }
 }
+
     }
 
     post {
