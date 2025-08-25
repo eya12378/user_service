@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  user-service:
+  user_service:
     build: .
     container_name: user_service
     ports:
