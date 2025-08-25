@@ -40,14 +40,22 @@ pipeline {
                         git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
                         cd infra/apps/dev/user-service
                         sed -i s/tag:.*/tag:12/ values.yaml
-                        git checkout -b bump-user-12
-        
+
+                        # Checkout branch or reset to remote if it exists
+                        if git show-ref --verify --quiet refs/heads/bump-user-12; then
+                            git checkout bump-user-12
+                            git fetch origin bump-user-12
+                            git reset --hard origin/bump-user-12
+                        else
+                            git checkout -b bump-user-12
+                        fi
+
                         # Set Git user identity
                         git config user.name "eya12378"
                         git config user.email "eya.touili@eniso.u-sousse.tn"
-        
+
                         git add values.yaml
-                        git commit -m "user-service: bump to 12"
+                        git commit -m "user-service: bump to 12" || echo "No changes to commit"
                         git push origin bump-user-12
                     '''
                 }
