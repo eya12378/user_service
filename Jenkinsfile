@@ -32,37 +32,35 @@ pipeline {
                 """
             }
         }
-        stage('Create Infra PR (bump tag)') {
-            steps {
-                withCredentials([string(credentialsId: 'github-token-id', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                        rm -rf infra
-                        git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
-                        cd infra/apps/dev/user-service
-                        sed -i s/tag:.*/tag:12/ values.yaml
+stage('Create Infra PR (bump tag)') {
+    steps {
+        withCredentials([string(credentialsId: 'github-token-id', variable: 'GITHUB_TOKEN')]) {
+            sh '''
+                rm -rf infra
+                git clone https://$GITHUB_TOKEN@github.com/eya12378/infra.git
+                cd infra/apps/dev/user-service
+                sed -i s/tag:.*/tag:12/ values.yaml
 
-                        # Checkout branch or reset to remote if it exists
-                        if git show-ref --verify --quiet refs/heads/bump-user-12; then
-                            git checkout bump-user-12
-                            git fetch origin bump-user-12
-                            git reset --hard origin/bump-user-12
-                        else
-                            git checkout -b bump-user-12
-                        fi
+                # Check if branch exists remotely
+                if git ls-remote --heads origin bump-user-12 | grep -q bump-user-12; then
+                    git checkout bump-user-12
+                    git pull --rebase origin bump-user-12
+                else
+                    git checkout -b bump-user-12
+                fi
 
-                        # Set Git user identity
-                        git config user.name "eya12378"
-                        git config user.email "eya.touili@eniso.u-sousse.tn"
+                # Set Git user identity
+                git config user.name "eya12378"
+                git config user.email "eya.touili@eniso.u-sousse.tn"
 
-                        git add values.yaml
-                        git commit -m "user-service: bump to 12" || echo "No changes to commit"
-                        git push origin bump-user-12
-                    '''
-                }
-            }
+                git add values.yaml
+                git commit -m "user-service: bump to 12" || echo "No changes to commit"
+                git push origin bump-user-12
+            '''
         }
-
-    } // end of stages
+    }
+}
+    }
 
     post {
         success {
