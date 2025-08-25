@@ -3,6 +3,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-ENV SERVICE_NAME="user-service"
+ENV SERVICE_NAME="user_service"
 EXPOSE 5000
 CMD ["python", "app.py"]
