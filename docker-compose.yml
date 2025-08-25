@@ -20,7 +20,7 @@ services:
     networks:
       - monitoring
     depends_on:
-      - user-service
+      - user_service
     restart: unless-stopped
 
   grafana:
