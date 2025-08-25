@@ -74,13 +74,17 @@ pipeline {
             }
         }
 
-        stage('Start Monitoring Stack') {
-            steps {
-                dir('user_service') {
-                    sh 'docker-compose up -d --build'
-                }
-            }
+stage('Start Monitoring Stack') {
+    steps {
+        dir('user_service') {
+            sh '''
+              docker-compose down || true
+              docker-compose up -d --build
+            '''
         }
+    }
+}
+
 
         stage('Expose ArgoCD') {
             steps {
